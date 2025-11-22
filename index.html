@@ -7,24 +7,27 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
-    <h1>Welcome to MyFramework</h1>
-    <p>This is the homepage of MyFramework.</p>
-
-
-
-    <h2>
-        Bemutatom nektek a Frameworköt! 
-        
-    </h2>
-
-
    
 
+    <div id="game-container"><!-- játék  -->
+        <div id="ui-bar">
+            <div id="score">Score: 0</div>
+            <div id="missed">Missed: 0/5</div>
+        </div>
 
-    <footer>
-        <p>&copy; 2024 MyFramework. All rights reserved.</p>
-    </footer>
+        <div id="game-area">
+            <!-- játékterület  -->
+            <!-- A játékos és az alkatrészek ebbe a div-be kerülnek -->
+        </div>
 
+        <div>
+            <h2>Framework Catcher!</h2>
+            <p>Catch the falling parts! Only use the mouse to move the laptop.</p>
+            <button onclick="Game.startGame()">Start!</button>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
 </body>
 </html>
