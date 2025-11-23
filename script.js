@@ -9,15 +9,14 @@ const settings = {
     ITEM_SIZE: 20,
     ITEM_SPEED: 2,//targy sebessege
     SPEED_INCREASE_RATE: 0.01,//sebesseg noveles idokoz   
-    SPAWN_RATE: 1500 //targy spawnozas idokoz
+    SPAWN_RATE: 1500, //targy spawnozas idokoz - HIÁNYZÓ VESSZŐ VOLT ITT
     ITEMS: [
-        { emoji: '🔋', text: 'Akkumulátor', value: 10 }, // Akkumulátor, 10 pont
-                { emoji: '🖥️', text: 'Kijelző', value: 10 }, // Kijelző, 10 pont
-                { emoji: '💾', text: 'SSD', value: 15 }, // SSD, 15 pont
-                { emoji: '🔌', text: 'Port Kártya', value: 20 }, // Port kártya, 20 pont
-                { emoji: '💡', text: 'RAM', value: 15 } // RAM, 15 pont
-
-    ] //targyak 
+        { emoji: '🔋', text: 'Akkumulátor', value: 10 },
+        { emoji: '🖥️', text: 'Kijelző', value: 10 },
+        { emoji: '💾', text: 'SSD', value: 15 },
+        { emoji: '🔌', text: 'Port Kártya', value: 20 },
+        { emoji: '💡', text: 'RAM', value: 15 }
+    ]
 };
 
 //dom lekerese
@@ -56,6 +55,7 @@ function  createPlayerElement() {
     p.id = 'player';
     p.style.left = `${player.x}px`; // kezdo pozicio
     gameArea.appendChild(p); //hozzaadjuk a jatek terulethez
+    player.element = p; //dom elem hivatkozas mentese
 }
 
 function renderPlayer() {
@@ -71,7 +71,7 @@ function setupMouseControls() {
     gameArea.addEventListener('mousemove', (e) => {
         if (!gameActive) return;
 
-        let mouseX = e.pffsetX;//eger X pozicio
+        let mouseX = e.offsetX;//eger X pozicio
 
         let newX = mouseX - player.width / 2;
 
@@ -153,9 +153,9 @@ function checkCollision(player, item) {
     const playerTop = player.y;
 
     // Y ütközés: az elem alja a laptop magasságán belül van
-    const y_collision = itemBottomY >= playerTopY && itemBottomY <= playerTopY + player.height;
-    // X ütközés: az elemek vízszintesen fedik egymást
+    const y_collision = itemBottom >= playerTop && itemBottom <= playerTop + player.height;
     const x_collision = itemRight >= playerLeft && itemLeft <= playerRight; 
+
 
     // akkor van ütközés, ha mindkét tengelyen fedik egymást
     return x_collision && y_collision;
@@ -174,7 +174,7 @@ function spawnItem() {
     itemElement.textContent = randomItemData.emoji; //emojit beallitasa
 
     // X pozicio beallitasa
-    itemElement.style.left = '${xPos - settings.ITEM_SIZE / 2}px';
+    itemElement.style.left = `${xPos - settings.ITEM_SIZE / 2}px`;
     // kezdo Y pozicio (a jatek teruleten felul)
     itemElement.style.top = `- ${settings.ITEM_SIZE}px`;
     gameArea.appendChild(itemElement); //hozzaadas a jatek terulethez
@@ -193,11 +193,76 @@ function spawnItem() {
 // frissites es jatek vege 
 
 function updateScore() {
-    scoreDisplay.textContent = 'Score: ${score}'; // pontszam kijelzo szovegenek frissitese 
+    scoreDisplay.textContent = `Score: ${score}`; // pontszam kijelzo szovegenek frissitese 
+}
+
+function updateMissed() {
+            missedDisplay.textContent = `Elrontva: ${missedCount}/${settings.MAX_MISSES}`; // Elrontott elemek kijelzőjének frissítése
+}
+
+function checkGameOver() {
+    if (missedCount >= settings.MAX_MISSES) { // Ha elérte a maximális elrontott számot
+        gameActive = false; // Leállítjuk a játékot
+        cancelAnimationFrame(animationFrameId); // Leállítjuk a játékhurkot
+        clearInterval(spawnIntervalId); // Leállítjuk az alkatrész generálást
+                
+        // Játék vége üzenet összeállítása és megjelenítése
+        messageBox.innerHTML = `
+            <h2>Game over!</h2>
+            <p>Score: ${score}</p>
+            <button onclick="Game.startGame()">Újrakezdés</button>
+        `;
+        messageBox.classList.add('active'); // Megjelenítjük az üzenetdobozt
+    }
 }
 
 
 
+// jatek fociklus
+function gameLoop() {
+    // jatek allapota es elemek poziciojanak frissetese
+    updateItems();
+
+    //dom poziciok frissetese
+    renderPlayer();
+
+    //ciklus folytatasa a kovi frame-ben
+    if (gameActive) {
+        animationFrameId = requestAnimationFrame(gameLoop);
+    }
+}
 
 
+//PUBLIC FÜGGVÉNYEK (A HTML gombokhoz) 
 
+const Game = {
+    startGame() {
+        // toroljuk a jatek teruletet es visszaallitjuk az allapotot
+        gameArea.innerHTML = '';
+
+        // allapot reset
+        score = 0;
+        missedCount = 0;
+        fallingItems = [];
+        currentItemSpeed = settings.ITEM_SPEED;
+        // laptop kozepre igazitas
+        player.x = settings.CANVAS_WIDTH / 2 - settings.PLAYER_WIDTH / 2;
+
+        createPlayerElement(); // uj jatekos dom elem letrehozása
+
+        updateScore(); // pontszam kijelzo frissitese
+        updateMissed(); // elrontott targyak kijelzo frissitese
+
+        messageBox.classList.remove('active'); // uzenet doboz elrejtese
+        gameActive = true; // jatek aktivalas
+
+        if (spawnIntervalId) clearInterval(spawnIntervalId); // korabbi interval tisztitasa
+        spawnIntervalId = setInterval(spawnItem, settings.SPAWN_RATE); // uj idozito beallitasa
+        
+        gameLoop(); // jatek fo ciklus inditasa 
+
+    }
+};
+
+// glogalis hozzaferest biztosit a Game objektumhoz a HTML gombok szamara
+window.Game = Game;
