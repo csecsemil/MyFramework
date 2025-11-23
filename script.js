@@ -12,10 +12,10 @@ const settings = {
     SPAWN_RATE: 1500, //targy spawnozas idokoz - HIÁNYZÓ VESSZŐ VOLT ITT
     ITEMS: [
         { image: 'batteryy.webp', text: 'Akkumulátor', value: 10 },
-        { image: 'main-1.avif', text: 'Kijelző', value: 10 },
-        { image: 'ssd.png', text: 'SSD', value: 15 },
-        { image: 'port.png', text: 'Port Kártya', value: 20 },
-        { image: 'ram.png', text: 'RAM', value: 15 }
+        { image: 'https://placehold.co/30x30/4CAF50/FFFFFF?text=D', text: 'Kijelző', value: 10 },
+        { image: 'https://placehold.co/30x30/2196F3/FFFFFF?text=S', text: 'SSD', value: 15 },
+        { image: 'https://placehold.co/30x30/FF9800/FFFFFF?text=P', text: 'Port Kártya', value: 20 },
+        { image: 'https://placehold.co/30x30/9C27B0/FFFFFF?text=R', text: 'RAM', value: 15 }
     ]
 };
 
@@ -29,11 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const missesDisplay = document.getElementById('misses'); 
     const messageBox = document.getElementById('message-box');
     
-    console.log('gameArea:', gameArea);
-    console.log('scoreDisplay:', scoreDisplay);
-    console.log('missesDisplay:', missesDisplay);
-    console.log('messageBox:', messageBox);
-    
     if (gameArea && scoreDisplay && missesDisplay && messageBox) {
         setupMouseControls();
         console.log('Game ready!');
@@ -42,12 +37,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-//dom lekerese
-const gameContainer = document.getElementById('game-container');
-const gameArea = document.getElementById('game-area');
-const scoreDisplay = document.getElementById('score');
-const missesDisplay = document.getElementById('misses'); 
-const messageBox = document.getElementById('message-box');
+// Globális változókként definiálás helyett
+let gameArea, scoreDisplay, missesDisplay, messageBox;
+
+document.addEventListener('DOMContentLoaded', function() {
+    gameArea = document.getElementById('game-area');
+    scoreDisplay = document.getElementById('score');
+    missesDisplay = document.getElementById('misses'); 
+    messageBox = document.getElementById('message-box');
+    
+    if (gameArea && scoreDisplay && missesDisplay && messageBox) {
+        setupMouseControls();
+        console.log('Game ready!');
+    } else {
+        console.error('Hiánzzó DOM elemek!');
+    }
+});
+
+
 
 
 
@@ -65,7 +72,7 @@ let player = {
     y: 0, // Kezdőérték a startGame-ben beállítva
     width: settings.PLAYER_WIDTH,
     height: settings.PLAYER_HEIGHT,
-    element: null // dom elem hivatkoozása 
+    element: null // dom elem hivatkoozasa 
 };
 
 //targyak tombje (itt tároljuk az aktuálisan leeső elemeket)
@@ -190,36 +197,31 @@ function checkCollision(player, item) {
 
 // uj alkatresz letrehozasa
 function spawnItem() {
-    //veletlenszeru alkatresz kivalasztasa
     const randomItemData = settings.ITEMS[Math.floor(Math.random() * settings.ITEMS.length)];
-
-    //veletlenseru X posicio generálása szélességen belül
     const xPos = Math.random() * (settings.CANVAS_WIDTH - settings.ITEM_SIZE) + settings.ITEM_SIZE / 2;
 
-    const itemElement = document.createElement('div'); //uj div elem letrehozasa
-    itemElement.className = 'falling-item'; // css osztaly hozzarendeles
-
-    // kep elem letrehozasa es bealitasa
+    const itemElement = document.createElement('div');
+    itemElement.className = 'falling-item';
+    
+    // Kép elem létrehozása és beállítása
     const img = document.createElement('img');
     img.src = randomItemData.image;
     img.alt = randomItemData.text;
     img.style.width = `${settings.ITEM_SIZE}px`;
     img.style.height = `${settings.ITEM_SIZE}px`;
-    img.style.objectFit = 'contain';  // arany megtartasa
-    itemElement.appendChild(img); //kep hozzadasa a div elemhez
+    img.style.objectFit = 'contain'; // Arány megtartása
+    
+    itemElement.appendChild(img); // Kép hozzáadása a div-hez
 
-    // X pozicio beallitasa
     itemElement.style.left = `${xPos - settings.ITEM_SIZE / 2}px`;
-    // kezdo Y pozicio (a jatek teruleten felul)
     itemElement.style.top = `-${settings.ITEM_SIZE}px`;
-    gameArea.appendChild(itemElement); //hozzaadas a jatek terulethez
+    gameArea.appendChild(itemElement);
 
-    // hozzaadas a fallingItems tombhoz a mozgatashoz szukseges adatokkal
     fallingItems.push({
-        x: xPos, //kozeppont x kordinataja
-        y: -settings.ITEM_SIZE, //kezdo y kordinataja
-        value: randomItemData.value, //pont ertek
-        element: itemElement //dom elem hivatkozas
+        x: xPos,
+        y: -settings.ITEM_SIZE,
+        value: randomItemData.value,
+        element: itemElement
     });
 }
 
@@ -272,7 +274,6 @@ function gameLoop() {
 
 const Game = {
     startGame() {
-
         console.log('Game started');
         // toroljuk a jatek teruletet es visszaallitjuk az allapotot
         gameArea.innerHTML = '';
@@ -284,21 +285,17 @@ const Game = {
         currentItemSpeed = settings.ITEM_SPEED;
         // laptop kozepre igazitas
         player.x = settings.CANVAS_WIDTH / 2 - settings.PLAYER_WIDTH / 2;
+        player.y = settings.CANVAS_HEIGHT - settings.PLAYER_HEIGHT - 10; // HOZZÁADVA: Y pozíció
 
-        createPlayerElement(); // uj jatekos dom elem letrehozása
+        createPlayerElement();
+        updateScore();
+        updateMissed();
+        messageBox.classList.remove('active');
+        gameActive = true;
 
-        updateScore(); // pontszam kijelzo frissitese
-        updateMissed(); // elrontott targyak kijelzo frissitese
-
-        messageBox.classList.remove('active'); // uzenet doboz elrejtese
-        gameActive = true; // jatek aktivalas
-
-       if (spawnIntervalId) clearInterval(spawnIntervalId);
+        if (spawnIntervalId) clearInterval(spawnIntervalId);
         spawnIntervalId = setInterval(spawnItem, settings.SPAWN_RATE);
-        
-        
         gameLoop(); // jatek fo ciklus inditasa 
-
     }
 };
 

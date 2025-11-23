@@ -67,6 +67,13 @@ body {
     user-select: none;/*ne lehessen kijelolni*/
 }
 
+.falling-item {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 #ui-bar {
     width: 100%;
     display: flex;
