@@ -17,6 +17,7 @@ const settings = {
         { image: 'https://placehold.co/30x30/FF9800/FFFFFF?text=P', text: 'Port Kártya', value: 20 },
         { image: 'https://placehold.co/30x30/9C27B0/FFFFFF?text=R', text: 'RAM', value: 15 }
     ]
+    
 };
 
 // DOM elemek inicializálása DOM betöltés után
