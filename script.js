@@ -6,37 +6,63 @@ const settings = {
     PLAYER_HEIGHT: 15,
     PLAYER_SPEED: 8,//jatekos sebessege
     MAX_MISSES: 5,//maximalis elet
-    ITEM_SIZE: 20,
+    ITEM_SIZE: 30, // Nagyobb méret a képekhez
     ITEM_SPEED: 2,//targy sebessege
-    SPEED_INCREASE_RATE: 0.01,//sebesseg noveles idokoz   
+    SPEED_INCREASE_RATE: 0.001,//sebesseg noveles idokoz   
     SPAWN_RATE: 1500, //targy spawnozas idokoz - HIÁNYZÓ VESSZŐ VOLT ITT
     ITEMS: [
-        { emoji: '🔋', text: 'Akkumulátor', value: 10 },
-        { emoji: '🖥️', text: 'Kijelző', value: 10 },
-        { emoji: '💾', text: 'SSD', value: 15 },
-        { emoji: '🔌', text: 'Port Kártya', value: 20 },
-        { emoji: '💡', text: 'RAM', value: 15 }
+        { image: 'batteryy.webp', text: 'Akkumulátor', value: 10 },
+        { image: 'main-1.avif', text: 'Kijelző', value: 10 },
+        { image: 'ssd.png', text: 'SSD', value: 15 },
+        { image: 'port.png', text: 'Port Kártya', value: 20 },
+        { image: 'ram.png', text: 'RAM', value: 15 }
     ]
 };
 
+// DOM elemek inicializálása DOM betöltés után
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded');
+    
+    // DOM elemek újra lekérése
+    const gameArea = document.getElementById('game-area');
+    const scoreDisplay = document.getElementById('score');
+    const missesDisplay = document.getElementById('misses'); 
+    const messageBox = document.getElementById('message-box');
+    
+    console.log('gameArea:', gameArea);
+    console.log('scoreDisplay:', scoreDisplay);
+    console.log('missesDisplay:', missesDisplay);
+    console.log('messageBox:', messageBox);
+    
+    if (gameArea && scoreDisplay && missesDisplay && messageBox) {
+        setupMouseControls();
+        console.log('Game ready!');
+    } else {
+        console.error('Hiányzó DOM elemek!');
+    }
+});
+
 //dom lekerese
-const gameArea = document.getElementById('game-area'); //jatek terulet
-const scoreDisplay = document.getElementById('score');//pontszam kijelzo
-const missesDisplay = document.getElementById('misses');//elhagyott targyak kijelzo
-const messageBox = document.getElementById('message-box'); //uzenet doboz
+const gameContainer = document.getElementById('game-container');
+const gameArea = document.getElementById('game-area');
+const scoreDisplay = document.getElementById('score');
+const missesDisplay = document.getElementById('misses'); 
+const messageBox = document.getElementById('message-box');
+
+
 
 //jatek allapota
 let score = 0;//pontszam
 let missedCount = 0;//elrontott targyak szama
 let gameActive = false;//jatek fut-e 
 let animationFrameId; //animacio frame id
-let SpawnIntervalId;//targy spawnozas interval id
+let spawnIntervalId;//targy spawnozas interval id
 let currentItemSpeed = settings.ITEM_SPEED;//jelenlegi targy sebesseg
 
 //laptop objektum
 let player = {
-    x: (settings.CANVAS_WIDTH - settings.PLAYER_WIDTH) / 2,
-    y: settings.CANVAS_HEIGHT - settings.PLAYER_HEIGHT - 10,
+    x: 0, // Kezdőérték a startGame-ben beállítva
+    y: 0, // Kezdőérték a startGame-ben beállítva
     width: settings.PLAYER_WIDTH,
     height: settings.PLAYER_HEIGHT,
     element: null // dom elem hivatkoozása 
@@ -46,7 +72,7 @@ let player = {
 let fallingItems = [];
 
 // jatek inicializalasa
-function  createPlayerElement() {
+function createPlayerElement() {
     if (player.element) {
         player.element.remove(); // Eltávolítja a régi elemet, ha létezik
     }
@@ -68,31 +94,32 @@ function renderPlayer() {
 
 // bemenet kezelese (eger)
 function setupMouseControls() {
+    if (!gameArea) {
+        console.error('gameArea not found');
+        return;
+    }
+    
     gameArea.addEventListener('mousemove', (e) => {
         if (!gameActive) return;
 
-        let mouseX = e.offsetX;//eger X pozicio
-
+        let mouseX = e.offsetX;
         let newX = mouseX - player.width / 2;
 
-        // jatekos pozicio korlatozasa a jatek teruleten belul
         if (newX < 0) {
             newX = 0;
         } 
-        
         else if (newX + player.width > settings.CANVAS_WIDTH) {
             newX = settings.CANVAS_WIDTH - player.width;
         }
 
         player.x = newX;
-    
-});
-
+    });
 }
 
-
-// az egér vezérlésének beállítása rogton a script betöltése után
-setupMouseControls();
+// Az egér vezérlésének beállítása csak DOM betöltés után
+document.addEventListener('DOMContentLoaded', function() {
+    setupMouseControls();
+});
 
 
 // uptate logika
@@ -171,12 +198,20 @@ function spawnItem() {
 
     const itemElement = document.createElement('div'); //uj div elem letrehozasa
     itemElement.className = 'falling-item'; // css osztaly hozzarendeles
-    itemElement.textContent = randomItemData.emoji; //emojit beallitasa
+
+    // kep elem letrehozasa es bealitasa
+    const img = document.createElement('img');
+    img.src = randomItemData.image;
+    img.alt = randomItemData.text;
+    img.style.width = `${settings.ITEM_SIZE}px`;
+    img.style.height = `${settings.ITEM_SIZE}px`;
+    img.style.objectFit = 'contain';  // arany megtartasa
+    itemElement.appendChild(img); //kep hozzadasa a div elemhez
 
     // X pozicio beallitasa
     itemElement.style.left = `${xPos - settings.ITEM_SIZE / 2}px`;
     // kezdo Y pozicio (a jatek teruleten felul)
-    itemElement.style.top = `- ${settings.ITEM_SIZE}px`;
+    itemElement.style.top = `-${settings.ITEM_SIZE}px`;
     gameArea.appendChild(itemElement); //hozzaadas a jatek terulethez
 
     // hozzaadas a fallingItems tombhoz a mozgatashoz szukseges adatokkal
@@ -197,7 +232,7 @@ function updateScore() {
 }
 
 function updateMissed() {
-            missedDisplay.textContent = `Elrontva: ${missedCount}/${settings.MAX_MISSES}`; // Elrontott elemek kijelzőjének frissítése
+    missesDisplay.textContent = `Elrontva: ${missedCount}/${settings.MAX_MISSES}`; // Elrontott elemek kijelzőjének frissítése
 }
 
 function checkGameOver() {
@@ -218,7 +253,7 @@ function checkGameOver() {
 
 
 
-// jatek fociklus
+// jatek fo ciklus
 function gameLoop() {
     // jatek allapota es elemek poziciojanak frissetese
     updateItems();
@@ -237,6 +272,8 @@ function gameLoop() {
 
 const Game = {
     startGame() {
+
+        console.log('Game started');
         // toroljuk a jatek teruletet es visszaallitjuk az allapotot
         gameArea.innerHTML = '';
 
@@ -256,8 +293,9 @@ const Game = {
         messageBox.classList.remove('active'); // uzenet doboz elrejtese
         gameActive = true; // jatek aktivalas
 
-        if (spawnIntervalId) clearInterval(spawnIntervalId); // korabbi interval tisztitasa
-        spawnIntervalId = setInterval(spawnItem, settings.SPAWN_RATE); // uj idozito beallitasa
+       if (spawnIntervalId) clearInterval(spawnIntervalId);
+        spawnIntervalId = setInterval(spawnItem, settings.SPAWN_RATE);
+        
         
         gameLoop(); // jatek fo ciklus inditasa 
 

@@ -19,14 +19,14 @@ body {
     overflow: hidden;
     background-color: white;
     position: relative;
-    width: 500px;
+    width: 800px;
     height: 650px;
 }
 
 /*jatek terulezt*/
 #game-area {
     width: 100%;
-    height: 600%;
+    height: 600px;
     background-color: #e8f5e9;
     position: relative;
     cursor: none;
@@ -72,7 +72,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 2px;
+    padding: 10px 20px;
     background-color: #4CAF50;
     color: white;
     font-weight: bold;
@@ -92,7 +92,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 0.5rem;
+    justify-content: center;
+    font-size: 1.5rem;
     opacity: 0;
     visibility: hidden;/* Kezdetben rejtett */
     transition: opacity 0.5s;
@@ -104,7 +105,7 @@ body {
     visibility: visible;
 }
 
-#medssage-box button {
+#message-box button {
     margin-top: 20px;
     padding: 10px 20px;
     font-size: 1.2rem;
@@ -115,4 +116,10 @@ body {
     color: #333;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s;
+}
+
+#message-box button:hover {
+    transform: translateY(-2px);
+    background-color: #FFB300;
 }
