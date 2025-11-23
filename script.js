@@ -12,7 +12,7 @@ const settings = {
     SPAWN_RATE: 1500, //targy spawnozas idokoz - HIÁNYZÓ VESSZŐ VOLT ITT
     ITEMS: [
         { image: 'batteryy.webp', text: 'Akkumulátor', value: 10 },
-        { image: 'https://placehold.co/30x30/4CAF50/FFFFFF?text=D', text: 'Kijelző', value: 10 },
+        { image: '', text: 'Kijelző', value: 10 },
         { image: 'https://placehold.co/30x30/2196F3/FFFFFF?text=S', text: 'SSD', value: 15 },
         { image: 'https://placehold.co/30x30/FF9800/FFFFFF?text=P', text: 'Port Kártya', value: 20 },
         { image: 'https://placehold.co/30x30/9C27B0/FFFFFF?text=R', text: 'RAM', value: 15 }

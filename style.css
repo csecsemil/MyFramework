@@ -5,10 +5,17 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-color: #f0f7f0;
+    background-color: #83ec4596;
     color: #333;
     margin: 0;
     overflow: hidden;
+}
+
+h1 {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 70px;
+    color: #117a17;
+
 }
 
 /* jatek kontener */
@@ -59,11 +66,13 @@ body {
 /* leeso alkatreszek */
 .falling-item {
     position: absolute;
-    font-size: 30px;
-    line-height: 1;
-    text-align: center;
-    width: 30px;
+    width: 70px;
+    height: 70px;
     pointer-events: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    animation: wobble 2s infinite;
     user-select: none;/*ne lehessen kijelolni*/
 }
 
